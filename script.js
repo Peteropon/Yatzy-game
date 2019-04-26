@@ -34,7 +34,7 @@ const store = new Vuex.Store({
             }
         },
         rolldie(state) {
-            for (i = 0; i < 5; i++) {
+            for (i = 0; i < state.dice.length; i++) {
                 state.dievalue = Math.floor(Math.random() * 6) + 1;
                 //state.dice.push(this.state.dievalue);
                 state.dice[i].value = state.dievalue
@@ -54,7 +54,7 @@ const store = new Vuex.Store({
 Vue.component('dice', {
     props: ['die'],
     template: `<div>
-                    <div v-for="die, index in shownumber" :key="index"> {{ die.value }} </div>
+                    <div class="dice" v-for="die, index in shownumber" :key="index" @click="die.locked = !die.locked"> {{ die.value }} </div>
 </div>`,
     computed: {
         shownumber() {
@@ -72,3 +72,5 @@ const app = new Vue({
         }
     }
 })
+
+//todo: add the iterator (count to 15)
