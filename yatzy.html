@@ -8,22 +8,27 @@
 
     <title>Yatzy!</title>
     <style>
-        .dice{
+        .dice {
       display: inline-grid;
       border: thin solid #333;
       width: 4em;
       padding: 1em;
       margin: 4px;
       border-radius: 5px;
-      background-color: rgba(45, 66, 22, 0.6);
-    }
+        }
+        .locked {
+            background-color: rgba(45, 66, 22, 0.6);
+        }
+        button {
+            margin: 1em;
+        }
     </style>
 </head>
 <body>
     <div id="app">
         <button @click="throwdice">Throw dice</button>
-        <dice >
-        </dice>
+        <dice ></dice>
+        <protocoll></protocoll>
     </div>
 </body>
 

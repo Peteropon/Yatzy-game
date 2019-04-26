@@ -36,14 +36,14 @@ const store = new Vuex.Store({
         rolldie(state) {
             for (i = 0; i < state.dice.length; i++) {
                 state.dievalue = Math.floor(Math.random() * 6) + 1;
-                //state.dice.push(this.state.dievalue);
-                state.dice[i].value = state.dievalue
+                if (state.dice[i].locked) continue
+                else state.dice[i].value = state.dievalue
             }
         }
     },
     getters: {
-        dicelength: state => {
-            return state.dice.length
+        getLocked: state => {
+            return state.dice.filter(die => die.locked)
         },
         getdievalue: (state) => (id) => {
             return state.dice.filter(die => die.id == id)
@@ -54,12 +54,21 @@ const store = new Vuex.Store({
 Vue.component('dice', {
     props: ['die'],
     template: `<div>
-                    <div class="dice" v-for="die, index in shownumber" :key="index" @click="die.locked = !die.locked"> {{ die.value }} </div>
-</div>`,
+               <div class="dice" v-for="die, index in shownumber" :key="index" @click="die.locked = !die.locked" v-bind:class="{locked:die.locked}"> {{ die.value }} </div>
+    </div>`,
     computed: {
         shownumber() {
             return this.$store.state.dice
         }
+    }
+})
+
+Vue.component('protocoll', {
+    template: `
+    <div> <label> Sum </label> <input type="text" > </div>
+    `,
+    computed: {
+
     }
 })
 
