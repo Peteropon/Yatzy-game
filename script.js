@@ -1,8 +1,28 @@
 const store = new Vuex.Store({
     state: {
         totalsum: 0,
-        dice: [],
-        dienumber: 0
+        dice: [{
+                id: 1,
+                value: 0,
+                locked: false
+            }, {
+                id: 2,
+                value: 0,
+                locked: false
+            }, {
+                id: 3,
+                value: 0,
+                locked: false
+            }, {
+                id: 4,
+                value: 0,
+                locked: false
+            }, {
+                id: 5,
+                value: 0,
+                locked: false
+            }],
+        dievalue: 0
     },
     mutations: {
         throwdice(state) {
@@ -14,26 +34,31 @@ const store = new Vuex.Store({
             }
         },
         rolldie(state) {
-            state.dienumber = Math.floor(Math.random() * 6) + 1;
-            
+            for (i = 0; i < 5; i++) {
+                state.dievalue = Math.floor(Math.random() * 6) + 1;
+                //state.dice.push(this.state.dievalue);
+                state.dice[i].value = state.dievalue
+            }
         }
     },
     getters: {
         dicelength: state => {
             return state.dice.length
         },
-        getdienumber: state => {
-            return state.dienumber
+        getdievalue: (state) => (id) => {
+            return state.dice.filter(die => die.id == id)
         }
     }
 })
 
-Vue.component('die', {
-    
-    template: `<div> {{ $store.getters.getdienumber }} </div>`,
+Vue.component('dice', {
+    props: ['die'],
+    template: `<div>
+                    <div v-for="die, index in shownumber" :key="index"> {{ die.value }} </div>
+</div>`,
     computed: {
         shownumber() {
-            return this.$store.getters.getdienumber
+            return this.$store.state.dice
         }
     }
 })
