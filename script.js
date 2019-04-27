@@ -22,31 +22,46 @@ const store = new Vuex.Store({
                 value: 0,
                 locked: false
             }],
-        dievalue: 0
+        dievalue: 0,
+        ones: 0
     },
     mutations: {
-        throwdice(state) {
-            var i;
-            state.dice = [];
-            for (i = 1; i < 6; i++) {
-                newDie = Math.floor(Math.random() * 6) + 1;
-                state.dice.push(newDie);
-            }
-        },
-        rolldie(state) {
+        rollDice(state) {
             for (i = 0; i < state.dice.length; i++) {
                 state.dievalue = Math.floor(Math.random() * 6) + 1;
                 if (state.dice[i].locked) continue
                 else state.dice[i].value = state.dievalue
             }
+        },
+        countNumbers(state, n) {
+            for (i = 0; i < state.dice.length; i++) {
+                if (state.dice[i].locked && state.dice[i].value === n) state.ones++
+                else continue
+            }
+            //if (state.getLocked.length > 0) console.log('tora')
+        }
+        //filter(die => die.value == n)
+    },
+    actions: {
+        countNumbers({ commit }) {
+            commit('countNumbers')
         }
     },
     getters: {
+        getOnes: state => {
+            return state.ones
+        },
         getLocked: state => {
             return state.dice.filter(die => die.locked)
         },
         getdievalue: (state) => (id) => {
             return state.dice.filter(die => die.id == id)
+        },
+        calculateSum(state, getters) {
+            for (i = 0; i < getters.getLocked.length; i++) {
+                state.totalsum += getters.getLocked[i].value
+            }
+            return state.totalsum
         }
     }
 })
@@ -68,8 +83,29 @@ Vue.component('protocoll', {
     <div> <label> Sum </label> <input type="text" > </div>
     `,
     computed: {
-
+        getSum() {
+            return this.$store.getters.calculateSum
+        }
     }
+})
+
+Vue.component('ettor', {
+    template: `<div class="child"><button @click="countNumbers">Ones</button> <span> {{ getOnes }} </span> </div>`,
+    computed: {
+        getOnes() {
+
+            return this.$store.getters.getOnes
+        }
+    },
+    methods: {
+        countNumbers() {
+            store.commit('countNumbers', 1)
+        }
+    }
+})
+
+Vue.component('tvor', {
+    template: `<div class="child"><button >Twos</button> <span> Result here </span> </div>`
 })
 
 const app = new Vue({
@@ -77,8 +113,11 @@ const app = new Vue({
     store,
     methods: {
         throwdice () {
-            store.commit('rolldie')
-        }
+            store.commit('rollDice')
+        },
+        //countNumbers(n) {
+        //    store.commit('countNumbers', n)
+        //}
     }
 })
 

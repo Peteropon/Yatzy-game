@@ -11,7 +11,7 @@
         .dice {
       display: inline-grid;
       border: thin solid #333;
-      width: 4em;
+      width: 1.6em;
       padding: 1em;
       margin: 4px;
       border-radius: 5px;
@@ -22,13 +22,26 @@
         button {
             margin: 1em;
         }
+        .pr {
+            margin: 1em;
+        }
+        .child > p {
+            display: inline-grid;
+            float: left;
+        }
+        p {
+            
+        }
     </style>
 </head>
 <body>
     <div id="app">
         <button @click="throwdice">Throw dice</button>
-        <dice ></dice>
-        <protocoll></protocoll>
+        <dice></dice>
+        <protocoll class="pr">
+        </protocoll>
+        <ettor></ettor>
+        <tvor></tvor>
     </div>
 </body>
 
