@@ -49,7 +49,8 @@ const store = new Vuex.Store({
                 id: 6,
                 value: 0
             }
-        ]
+        ],
+        samesTotal: 0
     },
     mutations: {
         rollDice(state) {
@@ -67,7 +68,13 @@ const store = new Vuex.Store({
                 }
                 else continue
             }
-            //if (state.getLocked.length > 0) console.log('tora')
+            state.samesTotal += (state.sames[n - 1].value * n)
+        },
+        calculateSum(state, getters) {
+            for (i = 0; i < getters.getSames.length; i++) {
+                state.totalsum += getters.getSames[i].value
+            }
+            return state.totalsum
         }
         //filter(die => die.value == n)
     },
@@ -77,24 +84,19 @@ const store = new Vuex.Store({
         }
     },
     getters: {
+        getSamesTotal: state => {
+            return state.samesTotal
+        },
         getSames: state => {
             return state.sames
         },
-        //getTwos: state => {
-        //    return state.sames
-        //},
         getLocked: state => {
             return state.dice.filter(die => die.locked)
         },
         getdievalue: (state) => (id) => {
             return state.dice.filter(die => die.id == id)
-        },
-        calculateSum(state, getters) {
-            for (i = 0; i < getters.getSames.length; i++) {
-                state.totalsum += getters.getSames[i].value
-            }
-            return state.totalsum
         }
+        
     }
 })
 
@@ -111,13 +113,13 @@ Vue.component('dice', {
     }
 })
 
-Vue.component('protocoll', {
+Vue.component('firstsum', {
     template: `
-    <div> <label> Sum </label> <input type="text" > {{ getSum }} </div>
+    <div v-show="getSum > 63"> <label> Sum </label>  {{ getSum }} </div>
     `,
     computed: {
         getSum() {
-            return this.$store.getters.calculateSum
+            return this.$store.getters.getSamesTotal
         }
     }
 })
@@ -140,7 +142,7 @@ Vue.component('tvor', {
     template: `<div class="child"><button @click="countNumbers">Twos</button> <span v-show="getTwos > 0"> {{ getTwos }} </span></div>`,
     computed: {
         getTwos() {
-            return this.$store.state.sames[1].value
+            return this.$store.state.sames[1].value*2
         }
     },
     methods: {
@@ -154,7 +156,7 @@ Vue.component('treor', {
     template: `<div class="child"><button @click="countNumbers">Threes</button> <span v-show="getThrees > 0"> {{ getThrees }} </span></div>`,
     computed: {
         getThrees() {
-            return this.$store.state.sames[2].value
+            return this.$store.state.sames[2].value*3
         }
     },
     methods: {
@@ -168,7 +170,7 @@ Vue.component('fyror', {
     template: `<div class="child"><button @click="countNumbers">Fours</button> <span v-show="getFours > 0"> {{ getFours }} </span></div>`,
     computed: {
         getFours() {
-            return this.$store.state.sames[3].value
+            return this.$store.state.sames[3].value*4
         }
     },
     methods: {
@@ -182,7 +184,7 @@ Vue.component('femor', {
     template: `<div class="child"><button @click="countNumbers">Fives</button> <span v-show="getFives > 0"> {{ getFives }} </span></div>`,
     computed: {
         getFives() {
-            return this.$store.state.sames[4].value
+            return this.$store.state.sames[4].value*5
         }
     },
     methods: {
@@ -196,7 +198,7 @@ Vue.component('sexor', {
     template: `<div class="child"><button @click="countNumbers">Sixes</button> <span v-show="getSixes > 0"> {{ getSixes }} </span></div>`,
     computed: {
         getSixes() {
-            return this.$store.state.sames[5].value
+            return this.$store.state.sames[5].value*6
         }
     },
     methods: {
@@ -213,9 +215,6 @@ const app = new Vue({
         throwdice () {
             store.commit('rollDice')
         },
-        //countNumbers(n) {
-        //    store.commit('countNumbers', n)
-        //}
     }
 })
 
