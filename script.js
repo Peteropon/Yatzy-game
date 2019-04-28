@@ -56,7 +56,8 @@ const store = new Vuex.Store({
         tretalSum: 0,
         fyrtalSum: 0,
         smallStraight: false,
-        largeStraight: false
+        largeStraight: false,
+        yatzy: false
     },
     mutations: {
         rollDice(state) {
@@ -124,6 +125,23 @@ const store = new Vuex.Store({
                     }
                 }
             }
+        },
+        checkYatzy(state) {
+            state.lockedNumbers = []
+            if (state.dice.filter(die => die.locked).length === 5) {
+                state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
+                if (state.lockedNumbers.every(num => num - num == 0)) {
+                    state.yatzy = true
+                    state.totalsum += 50
+                }
+            }
+        },
+        chance(state) {
+            state.lockedNumbers = []
+            state.getLockedNumbersSum = 0
+            state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
+            state.lockedNumbersSum = state.lockedNumbers.reduce((num, total) => total + num)
+            state.totalsum += state.lockedNumbersSum
         }
     },
     actions: {
@@ -341,6 +359,36 @@ Vue.component('stor', {
         }
     }
 })
+
+Vue.component('chance', {
+    template: `<div class="child"><button @click="check">Chance</button> <span v-if="getSum">{{ getSum }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getSum() {
+            return this.$store.getters.getLockedNumbersSum
+        }
+    },
+    methods: {
+        check() {
+            store.commit('chance')
+        }
+    }
+})
+
+
+Vue.component('yatzy', {
+    template: `<div class="child"><button @click="check">Yatzy!</button> <span v-if="getSum">{{ 50 }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getSum() {
+            return this.$store.state.yatzy
+        }
+    },
+    methods: {
+        check() {
+            store.commit('checkYatzy')
+        }
+    }
+})
+
 
 
 const app = new Vue({
