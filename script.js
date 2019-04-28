@@ -50,7 +50,9 @@ const store = new Vuex.Store({
             }
         ],
         samesTotal: 0,
-        pairSum: 0
+        pairSum: 0,
+        lockedNumbers: [],
+        lockedNumbersSum: 0
     },
     mutations: {
         rollDice(state) {
@@ -68,7 +70,7 @@ const store = new Vuex.Store({
                 else continue
             }
             state.samesTotal += (state.sames[n - 1].count * n)
-            state.totalsum += state.samesTotal
+            state.totalsum += (state.sames[n - 1].count * n)
         },
         calculateSum(state, getters) {
             for (i = 0; i < getters.getSames.length; i++) {
@@ -76,13 +78,25 @@ const store = new Vuex.Store({
             }
             return state.totalsum
         },
-        checkPairs(state) {
+        checkPair(state) {
             if (state.dice.filter(die => die.locked)[0].value === state.dice.filter(die => die.locked)[1].value) {
-                console.log('ok')
                 state.pairSum = state.dice.filter(die => die.locked)[0].value * 2
                 state.totalsum += state.pairSum
             }
             //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) console.log('ok')
+        },
+        check(state, n) {
+            //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) {
+            //    if (state.dice.filter(die => die.locked).value === n)
+            //}
+            state.lockedNumbers = []
+            state.getLockedNumbersSum = 0
+            state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
+            if (state.lockedNumbers.length === n && state.lockedNumbers.every(num => num - num === 0)) {
+                console.log('oko')
+                state.lockedNumbersSum = state.lockedNumbers.reduce((num, total) => total + num)
+                state.totalsum += state.lockedNumbersSum
+            }
         }
     },
     actions: {
@@ -99,6 +113,12 @@ const store = new Vuex.Store({
         },
         getLocked: state => {
             return state.dice.filter(die => die.locked)
+        },
+        getLockedNumbersSum: (state) => (n) => {
+            return state.lockedNumbers[0] * n
+        },
+        getLockedNumbers: state => {
+            return state.lockedNumbers
         },
         getPairSum: state => {
             return state.pairSum
@@ -220,7 +240,6 @@ Vue.component('sexor', {
 })
 
 Vue.component('onepair', {
-    props: ['die'],
     template: `<div class="child"><button @click="checkPair">1 pair</button> <span v-if="getPair > 1">{{ getPair }}</span> <span v-else>0</span></div>`,
     computed: {
         getPair() {
@@ -229,7 +248,35 @@ Vue.component('onepair', {
     },
     methods: {
         checkPair() {
-            store.commit('checkPairs')
+            store.commit('checkPair')
+        }
+    }
+})
+
+Vue.component('tretal', {
+    template: `<div class="child"><button @click="check3">Three of a kind</button> <span v-if="getSum > 0">{{ this.getSum }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getSum() {
+            return this.$store.getters.getLockedNumbersSum(3)
+        }
+    },
+    methods: {
+        check3() {
+            store.commit('check', 3)
+        }
+    }
+})
+
+Vue.component('fyrtal', {
+    template: `<div class="child"><button @click="check4">Four of a kind</button> <span v-if="getSum > 0">{{ this.getSum }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getSum() {
+            return this.$store.state.lockedNumbersSum
+        }
+    },
+    methods: {
+        check4() {
+            store.commit('check', 4)
         }
     }
 })
