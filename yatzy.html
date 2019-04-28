@@ -26,9 +26,11 @@
         .pr {
             margin: 1em;
         }
-        .child > p {
+        #left, #right {
             display: inline-grid;
-            float: left;
+            border: groove;
+            min-height: 27em;
+            width: 10em;
         }
         p {
             
@@ -39,22 +41,26 @@
     <div id="app">
         <button @click="throwdice">Throw dice</button>
         <dice></dice>
-
-        <ettor></ettor>
-        <tvor></tvor>
-        <treor></treor>
-        <fyror></fyror>
-        <femor></femor>
-        <sexor></sexor> 
-        <firstsum class="pr">
-        </firstsum>
-        <onepair></onepair>
-        <tretal></tretal>
-        <fyrtal></fyrtal>
-        <liten></liten>
-        <stor></stor>
-        <chance></chance>
-        <yatzy></yatzy>
+        <section id="left">
+            <ettor></ettor>
+            <tvor></tvor>
+            <treor></treor>
+            <fyror></fyror>
+            <femor></femor>
+            <sexor></sexor>
+            <firstsum class="pr">
+            </firstsum>
+        </section>
+        <section id="right">
+            <onepair></onepair>
+            <twopairs></twopairs>
+            <tretal></tretal>
+            <fyrtal></fyrtal>
+            <liten></liten>
+            <stor></stor>
+            <chance></chance>
+            <yatzy></yatzy>
+        </section>
     </div>
 </body>
 

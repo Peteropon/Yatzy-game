@@ -1,6 +1,6 @@
 const store = new Vuex.Store({
     state: {
-        totalsum: 0,
+        totalSum: 0,
         dice: [{
                 id: 1,
                 value: 0,
@@ -75,20 +75,30 @@ const store = new Vuex.Store({
                 else continue
             }
             state.samesTotal += (state.sames[n - 1].count * n)
-            state.totalsum += (state.sames[n - 1].count * n)
+            state.totalSum += (state.sames[n - 1].count * n)
         },
         calculateSum(state, getters) {
             for (i = 0; i < getters.getSames.length; i++) {
-                state.totalsum += getters.getSames[i].count
+                state.totalSum += getters.getSames[i].count
             }
-            return state.totalsum
+            return state.totalSum
         },
         checkPair(state) {
             if (state.dice.filter(die => die.locked)[0].value === state.dice.filter(die => die.locked)[1].value) {
                 state.pairSum = state.dice.filter(die => die.locked)[0].value * 2
-                state.totalsum += state.pairSum
+                state.totalSum += state.pairSum
             }
             //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) console.log('ok')
+        },
+        checkTwoPairs(state) {
+            //state.lockedNumbers = []
+            state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
+            for (i = 0; i < state.lockedNumbers.length; i++) {
+                if (state.lockedNumbers[i] == state.sames[state.lockedNumbers[i] - 1].id) {
+                    state.sames[state.lockedNumbers[i] - 1].count++
+                    console.log(i)
+                } else console.log('oxi')
+            }
         },
         check(state, n) {
             state.lockedNumbers = []
@@ -97,10 +107,10 @@ const store = new Vuex.Store({
             if (state.lockedNumbers.length === n && state.lockedNumbers.every(num => num - num === 0)) {
                 if (n === 3) {
                     state.tretalSum = state.lockedNumbers.reduce((num, total) => total + num)
-                    state.totalsum += state.tretalSum
+                    state.totalSum += state.tretalSum
                 } else if (n === 4) {
                     state.fyrtalSum = state.lockedNumbers.reduce((num, total) => total + num)
-                    state.totalsum += state.fyrtalSum
+                    state.totalSum += state.fyrtalSum
                 }
             }
         },
@@ -114,14 +124,13 @@ const store = new Vuex.Store({
                     state.lockedNumbers[2] === n + 2 &&
                     state.lockedNumbers[3] === n + 3 &&
                     state.lockedNumbers[4] === n + 4) {
-                    console.log('oko')
                     if (n === 1) {
                         state.smallStraight = true
-                        state.totalsum += 15
+                        state.totalSum += 15
                     }
                     else if (n === 2) {
                         state.largeStraight = true
-                        state.totalsum += 20
+                        state.totalSum += 20
                     }
                 }
             }
@@ -132,7 +141,7 @@ const store = new Vuex.Store({
                 state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
                 if (state.lockedNumbers.every(num => num - num == 0)) {
                     state.yatzy = true
-                    state.totalsum += 50
+                    state.totalSum += 50
                 }
             }
         },
@@ -141,7 +150,7 @@ const store = new Vuex.Store({
             state.getLockedNumbersSum = 0
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
             state.lockedNumbersSum = state.lockedNumbers.reduce((num, total) => total + num)
-            state.totalsum += state.lockedNumbersSum
+            state.totalSum += state.lockedNumbersSum
         }
     },
     actions: {
@@ -300,6 +309,20 @@ Vue.component('onepair', {
     methods: {
         checkPair() {
             store.commit('checkPair')
+        }
+    }
+})
+
+Vue.component('twopairs', {
+    template: `<div class="child"><button @click="checkTwoPairs">2 pairs</button> <span v-if="getPairs > 1">{{ getPairs }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getPairs() {
+            return 
+        }
+    },
+    methods: {
+        checkTwoPairs() {
+            store.commit('checkTwoPairs')
         }
     }
 })
