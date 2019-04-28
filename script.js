@@ -54,7 +54,9 @@ const store = new Vuex.Store({
         lockedNumbers: [],
         lockedNumbersSum: 0,
         tretalSum: 0,
-        fyrtalSum: 0
+        fyrtalSum: 0,
+        smallStraight: false,
+        largeStraight: false
     },
     mutations: {
         rollDice(state) {
@@ -103,10 +105,24 @@ const store = new Vuex.Store({
         },
         checkStraight(state, n) {
             state.lockedNumbers = []
-            if (state.dice.filter(die => die.locked).length === 4) {
+            if (state.dice.filter(die => die.locked).length === 5) {
                 state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
                 state.lockedNumbers.sort((a, b) => a - b)
-                console.log('oko')
+                if (state.lockedNumbers[0] === n &&
+                    state.lockedNumbers[1] === n + 1 &&
+                    state.lockedNumbers[2] === n + 2 &&
+                    state.lockedNumbers[3] === n + 3 &&
+                    state.lockedNumbers[4] === n + 4) {
+                    console.log('oko')
+                    if (n === 1) {
+                        state.smallStraight = true
+                        state.totalsum += 15
+                    }
+                    else if (n === 2) {
+                        state.largeStraight = true
+                        state.totalsum += 20
+                    }
+                }
             }
         }
     },
@@ -299,10 +315,10 @@ Vue.component('fyrtal', {
 })
 
 Vue.component('liten', {
-    template: `<div class="child"><button @click="check">Small straight</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click="check">Small straight</button> <span v-if="getSum">{{ 15 }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
-            return 
+            return this.$store.state.smallStraight
         }
     },
     methods: {
@@ -311,6 +327,21 @@ Vue.component('liten', {
         }
     }
 })
+
+Vue.component('stor', {
+    template: `<div class="child"><button @click="check">Large straight</button> <span v-if="getSum">{{ 20 }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getSum() {
+            return this.$store.state.largeStraight
+        }
+    },
+    methods: {
+        check() {
+            store.commit('checkStraight', 2)
+        }
+    }
+})
+
 
 const app = new Vue({
     el: '#app',
