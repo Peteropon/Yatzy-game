@@ -49,7 +49,8 @@ const store = new Vuex.Store({
                 count: 0
             }
         ],
-        samesTotal: 0
+        samesTotal: 0,
+        pairSum: 0
     },
     mutations: {
         rollDice(state) {
@@ -67,6 +68,7 @@ const store = new Vuex.Store({
                 else continue
             }
             state.samesTotal += (state.sames[n - 1].count * n)
+            state.totalsum += state.samesTotal
         },
         calculateSum(state, getters) {
             for (i = 0; i < getters.getSames.length; i++) {
@@ -75,7 +77,12 @@ const store = new Vuex.Store({
             return state.totalsum
         },
         checkPairs(state) {
-
+            if (state.dice.filter(die => die.locked)[0].value === state.dice.filter(die => die.locked)[1].value) {
+                console.log('ok')
+                state.pairSum = state.dice.filter(die => die.locked)[0].value * 2
+                state.totalsum += state.pairSum
+            }
+            //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) console.log('ok')
         }
     },
     actions: {
@@ -92,6 +99,9 @@ const store = new Vuex.Store({
         },
         getLocked: state => {
             return state.dice.filter(die => die.locked)
+        },
+        getPairSum: state => {
+            return state.pairSum
         },
         getdievalue: (state) => (id) => {
             return state.dice.filter(die => die.id == id)
@@ -210,11 +220,16 @@ Vue.component('sexor', {
 })
 
 Vue.component('onepair', {
-    template: `<div class="child"><button @click="checkPair">1 pair</button> <span v-show="getSixes > 0"> {{  }} </span></div>`,
-    computed: {},
+    props: ['die'],
+    template: `<div class="child"><button @click="checkPair">1 pair</button> <span v-if="getPair > 1">{{ getPair }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getPair() {
+            return this.$store.getters.getPairSum 
+        }
+    },
     methods: {
         checkPair() {
-
+            store.commit('checkPairs')
         }
     }
 })
