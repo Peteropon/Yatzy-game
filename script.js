@@ -52,7 +52,9 @@ const store = new Vuex.Store({
         samesTotal: 0,
         pairSum: 0,
         lockedNumbers: [],
-        lockedNumbersSum: 0
+        lockedNumbersSum: 0,
+        tretalSum: 0,
+        fyrtalSum: 0
     },
     mutations: {
         rollDice(state) {
@@ -86,16 +88,25 @@ const store = new Vuex.Store({
             //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) console.log('ok')
         },
         check(state, n) {
-            //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) {
-            //    if (state.dice.filter(die => die.locked).value === n)
-            //}
             state.lockedNumbers = []
             state.getLockedNumbersSum = 0
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
             if (state.lockedNumbers.length === n && state.lockedNumbers.every(num => num - num === 0)) {
+                if (n === 3) {
+                    state.tretalSum = state.lockedNumbers.reduce((num, total) => total + num)
+                    state.totalsum += state.tretalSum
+                } else if (n === 4) {
+                    state.fyrtalSum = state.lockedNumbers.reduce((num, total) => total + num)
+                    state.totalsum += state.fyrtalSum
+                }
+            }
+        },
+        checkStraight(state, n) {
+            state.lockedNumbers = []
+            if (state.dice.filter(die => die.locked).length === 4) {
+                state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
+                state.lockedNumbers.sort((a, b) => a - b)
                 console.log('oko')
-                state.lockedNumbersSum = state.lockedNumbers.reduce((num, total) => total + num)
-                state.totalsum += state.lockedNumbersSum
             }
         }
     },
@@ -111,11 +122,17 @@ const store = new Vuex.Store({
         getSames: state => {
             return state.sames
         },
+        getTretalSum: state => {
+            return state.tretalSum
+        },
+        getFyrtalSum: state => {
+            return state.fyrtalSum
+        },
         getLocked: state => {
             return state.dice.filter(die => die.locked)
         },
-        getLockedNumbersSum: (state) => (n) => {
-            return state.lockedNumbers[0] * n
+        getLockedNumbersSum: (state) => {
+            return state.lockedNumbersSum
         },
         getLockedNumbers: state => {
             return state.lockedNumbers
@@ -134,7 +151,7 @@ Vue.component('dice', {
     props: ['die'],
     template: `<div>
                <div class="dice" v-for="die, index in shownumber" :key="index" @click="die.locked = !die.locked" 
-    v-bind:class="{locked:die.locked}" v-show="die.value > 0"> {{ die.value }} </div>
+    v-bind:class="{locked:die.locked}" > {{ die.value }} </div>
     </div>`,
     computed: {
         shownumber() {
@@ -254,10 +271,10 @@ Vue.component('onepair', {
 })
 
 Vue.component('tretal', {
-    template: `<div class="child"><button @click="check3">Three of a kind</button> <span v-if="getSum > 0">{{ this.getSum }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click="check3">Three of a kind</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
-            return this.$store.getters.getLockedNumbersSum(3)
+            return this.$store.getters.getTretalSum
         }
     },
     methods: {
@@ -268,15 +285,29 @@ Vue.component('tretal', {
 })
 
 Vue.component('fyrtal', {
-    template: `<div class="child"><button @click="check4">Four of a kind</button> <span v-if="getSum > 0">{{ this.getSum }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click="check">Four of a kind</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
-            return this.$store.state.lockedNumbersSum
+            return this.$store.getters.getFyrtalSum
         }
     },
     methods: {
-        check4() {
+        check() {
             store.commit('check', 4)
+        }
+    }
+})
+
+Vue.component('liten', {
+    template: `<div class="child"><button @click="check">Small straight</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getSum() {
+            return 
+        }
+    },
+    methods: {
+        check() {
+            store.commit('checkStraight', 1)
         }
     }
 })
