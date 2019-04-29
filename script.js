@@ -43,7 +43,8 @@ const store = new Vuex.Store({
         fullhouseSum: 0,
         smallStraight: false,
         largeStraight: false,
-        yatzy: false
+        yatzy: false,
+        counter: 0
     },
     mutations: {
         prepareSames(state, n) {
@@ -62,18 +63,13 @@ const store = new Vuex.Store({
                 if (state.dice[i].locked) continue
                 else state.dice[i].value = state.dievalue
             }
+            state.counter++
         },
         countNumbers(state, n) {
             this.commit('prepareSames', n)
 
             // sames is prepared
 
-            //for (i = 0; i < state.dice.length; i++) {
-            //    if (state.dice[i].locked && state.dice[i].value === n) {
-            //        state.sames[n]++
-            //    }
-            //    else continue
-            //}
             state.samesTotal += (state.sames[n] * n)
             state.totalSum += (state.sames[n] * n)
         },
@@ -88,7 +84,6 @@ const store = new Vuex.Store({
                 state.pairSum = state.dice.filter(die => die.locked)[0].value * 2
                 state.totalSum += state.pairSum
             }
-            //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) console.log('ok')
         },
         checkTwoPairs(state) {
             state.lockedNumbers = []
@@ -239,7 +234,7 @@ Vue.component('firstsum', {
 })
 
 Vue.component('ettor', {
-    template: `<div class="child"><button @click="countNumbers">Ones</button> <span v-show="getOnes > 0"> {{ getOnes }} </span> </div>`,
+    template: `<div class="child"><button @click.once="countNumbers">Ones</button> <span v-show="getOnes > 0"> {{ getOnes }} </span> </div>`,
     computed: {
         getOnes() {
             return this.$store.getters.getSames[1]
@@ -253,7 +248,7 @@ Vue.component('ettor', {
 })
 
 Vue.component('tvor', {
-    template: `<div class="child"><button @click="countNumbers">Twos</button> <span v-show="getTwos > 0"> {{ getTwos }} </span></div>`,
+    template: `<div class="child"><button @click.once="countNumbers">Twos</button> <span v-show="getTwos > 0"> {{ getTwos }} </span></div>`,
     computed: {
         getTwos() {
             return this.$store.getters.getSames[2] * 2
@@ -267,7 +262,7 @@ Vue.component('tvor', {
 })
 
 Vue.component('treor', {
-    template: `<div class="child"><button @click="countNumbers">Threes</button> <span v-show="getThrees > 0"> {{ getThrees }} </span></div>`,
+    template: `<div class="child"><button @click.once="countNumbers">Threes</button> <span v-show="getThrees > 0"> {{ getThrees }} </span></div>`,
     computed: {
         getThrees() {
             return this.$store.getters.getSames[3] * 3
@@ -281,7 +276,7 @@ Vue.component('treor', {
 })
 
 Vue.component('fyror', {
-    template: `<div class="child"><button @click="countNumbers">Fours</button> <span v-show="getFours > 0"> {{ getFours }} </span></div>`,
+    template: `<div class="child"><button @click.once="countNumbers">Fours</button> <span v-show="getFours > 0"> {{ getFours }} </span></div>`,
     computed: {
         getFours() {
             return this.$store.getters.getSames[4] * 4
@@ -295,7 +290,7 @@ Vue.component('fyror', {
 })
 
 Vue.component('femor', {
-    template: `<div class="child"><button @click="countNumbers">Fives</button> <span v-show="getFives > 0"> {{ getFives }} </span></div>`,
+    template: `<div class="child"><button @click.once="countNumbers">Fives</button> <span v-show="getFives > 0"> {{ getFives }} </span></div>`,
     computed: {
         getFives() {
             return this.$store.getters.getSames[5] * 5
@@ -309,7 +304,7 @@ Vue.component('femor', {
 })
 
 Vue.component('sexor', {
-    template: `<div class="child"><button @click="countNumbers">Sixes</button> <span v-show="getSixes > 0"> {{ getSixes }} </span></div>`,
+    template: `<div class="child"><button @click.once="countNumbers">Sixes</button> <span v-show="getSixes > 0"> {{ getSixes }} </span></div>`,
     computed: {
         getSixes() {
             return this.$store.getters.getSames[6] * 6
@@ -323,7 +318,7 @@ Vue.component('sexor', {
 })
 
 Vue.component('onepair', {
-    template: `<div class="child"><button @click="checkPair">1 pair</button> <span v-if="getPair > 1">{{ getPair }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="checkPair">1 pair</button> <span v-if="getPair > 1">{{ getPair }}</span> <span v-else>0</span></div>`,
     computed: {
         getPair() {
             return this.$store.getters.getPairSum 
@@ -337,7 +332,7 @@ Vue.component('onepair', {
 })
 
 Vue.component('twopairs', {
-    template: `<div class="child"><button @click="checkTwoPairs">2 pairs</button> <span v-if="getPairs > 1">{{ getPairs }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="checkTwoPairs">2 pairs</button> <span v-if="getPairs > 1">{{ getPairs }}</span> <span v-else>0</span></div>`,
     computed: {
         getPairs() {
             return this.$store.state.twoPairSum
@@ -351,7 +346,7 @@ Vue.component('twopairs', {
 })
 
 Vue.component('tretal', {
-    template: `<div class="child"><button @click="check3">Three of a kind</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="check3">Three of a kind</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
             return this.$store.getters.getTretalSum
@@ -365,7 +360,7 @@ Vue.component('tretal', {
 })
 
 Vue.component('fyrtal', {
-    template: `<div class="child"><button @click="check">Four of a kind</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="check">Four of a kind</button> <span v-if="getSum > 0">{{ getSum }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
             return this.$store.getters.getFyrtalSum
@@ -379,7 +374,7 @@ Vue.component('fyrtal', {
 })
 
 Vue.component('liten', {
-    template: `<div class="child"><button @click="check">Small straight</button> <span v-if="getSum">{{ 15 }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="check">Small straight</button> <span v-if="getSum">{{ 15 }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
             return this.$store.state.smallStraight
@@ -393,7 +388,7 @@ Vue.component('liten', {
 })
 
 Vue.component('stor', {
-    template: `<div class="child"><button @click="check">Large straight</button> <span v-if="getSum">{{ 20 }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="check">Large straight</button> <span v-if="getSum">{{ 20 }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
             return this.$store.state.largeStraight
@@ -407,7 +402,7 @@ Vue.component('stor', {
 })
 
 Vue.component('fullhouse', {
-    template: `<div class="child"><button @click="check">Fullhouse</button> <span v-if="getSum">{{ getSum }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="check">Fullhouse</button> <span v-if="getSum">{{ getSum }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
             return this.$store.state.fullhouseSum
@@ -421,7 +416,7 @@ Vue.component('fullhouse', {
 })
 
 Vue.component('chance', {
-    template: `<div class="child"><button @click="check">Chance</button> <span v-if="getSum">{{ getSum }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="check">Chance</button> <span v-if="getSum">{{ getSum }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
             return this.$store.getters.getLockedNumbersSum
@@ -436,7 +431,7 @@ Vue.component('chance', {
 
 
 Vue.component('yatzy', {
-    template: `<div class="child"><button @click="check">Yatzy!</button> <span v-if="getSum">{{ 50 }}</span> <span v-else>0</span></div>`,
+    template: `<div class="child"><button @click.once="check">Yatzy!</button> <span v-if="getSum">{{ 50 }}</span> <span v-else>0</span></div>`,
     computed: {
         getSum() {
             return this.$store.state.yatzy
@@ -449,7 +444,14 @@ Vue.component('yatzy', {
     }
 })
 
-
+Vue.component('result', {
+    template: `<footer> Total Sum: {{ getSum }} </footer>`,
+    computed: {
+        getSum() {
+            return this.$store.state.totalSum
+        }
+    }
+})
 
 const app = new Vue({
     el: '#app',
@@ -457,7 +459,7 @@ const app = new Vue({
     methods: {
         throwdice () {
             store.commit('rollDice')
-        },
+        }
     }
 })
 
