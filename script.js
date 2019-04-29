@@ -67,6 +67,7 @@ const store = new Vuex.Store({
         tretalSum: 0,
         fyrtalSum: 0,
         twoPairSum: 0,
+        fullhouseSum: 0,
         smallStraight: false,
         largeStraight: false,
         yatzy: false
@@ -125,6 +126,28 @@ const store = new Vuex.Store({
                 console.log('ja')
                 state.twoPairSum = state.lockedNumbers.reduce((num, total) => total + num)
                 state.totalSum += state.twoPairSum
+            }
+        },
+        checkFullhouse(state) {
+            state.lockedNumbers = []
+            state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
+            state.lockedNumbers.sort((a, b) => a - b)
+            if (state.lockedNumbers[1] < state.lockedNumbers[2]) {
+                console.log('one')
+                if ((state.lockedNumbers[0] === state.lockedNumbers[1])
+                    && (state.lockedNumbers[2] + state.lockedNumbers[3] + state.lockedNumbers[4]) / 3 === state.lockedNumbers[2]) {
+                    console.log('ja')
+                    state.fullhouseSum = state.lockedNumbers.reduce((num, total) => total + num)
+                    state.totalSum += state.fullhouseSum
+                }
+            } else {
+                console.log('two')
+                if ((state.lockedNumbers[0] + state.lockedNumbers[1] + state.lockedNumbers[2]) / 3 === state.lockedNumbers[0]
+                    && state.lockedNumbers[3] === state.lockedNumbers[4]) {
+                    console.log('ja')
+                    state.fullhouseSum = state.lockedNumbers.reduce((num, total) => total + num)
+                    state.totalSum += state.fullhouseSum
+                }
             }
         },
         check(state, n) {
@@ -406,6 +429,20 @@ Vue.component('stor', {
     methods: {
         check() {
             store.commit('checkStraight', 2)
+        }
+    }
+})
+
+Vue.component('fullhouse', {
+    template: `<div class="child"><button @click="check">Fullhouse</button> <span v-if="getSum">{{ getSum }}</span> <span v-else>0</span></div>`,
+    computed: {
+        getSum() {
+            return this.$store.state.fullhouseSum
+        }
+    },
+    methods: {
+        check() {
+            store.commit('checkFullhouse')
         }
     }
 })
