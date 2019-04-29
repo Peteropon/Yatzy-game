@@ -58,12 +58,19 @@ const store = new Vuex.Store({
             // 2. Calculate sames
         },
         rollDice(state) {
-            for (i = 0; i < state.dice.length; i++) {
-                state.dievalue = Math.floor(Math.random() * 6) + 1;
-                if (state.dice[i].locked) continue
-                else state.dice[i].value = state.dievalue
+            if (state.counter < 3) {
+                for (i = 0; i < state.dice.length; i++) {
+                    state.dievalue = Math.floor(Math.random() * 6) + 1;
+                    if (state.dice[i].locked) continue
+                    else state.dice[i].value = state.dievalue
+                }
+                state.counter++
+            } else {
+                console.log('need to choose')
             }
-            state.counter++
+        },
+        resetCounter(state) {
+            state.counter = 0
         },
         countNumbers(state, n) {
             this.commit('prepareSames', n)
@@ -243,6 +250,7 @@ Vue.component('ettor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 1)
+            store.commit('resetCounter')
         }
     }
 })
@@ -257,6 +265,8 @@ Vue.component('tvor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 2)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -271,6 +281,8 @@ Vue.component('treor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 3)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -285,6 +297,8 @@ Vue.component('fyror', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 4)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -299,6 +313,8 @@ Vue.component('femor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 5)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -313,6 +329,8 @@ Vue.component('sexor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 6)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -327,6 +345,8 @@ Vue.component('onepair', {
     methods: {
         checkPair() {
             store.commit('checkPair')
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -341,6 +361,8 @@ Vue.component('twopairs', {
     methods: {
         checkTwoPairs() {
             store.commit('checkTwoPairs')
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -355,6 +377,8 @@ Vue.component('tretal', {
     methods: {
         check3() {
             store.commit('check', 3)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -369,6 +393,8 @@ Vue.component('fyrtal', {
     methods: {
         check() {
             store.commit('check', 4)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -383,6 +409,8 @@ Vue.component('liten', {
     methods: {
         check() {
             store.commit('checkStraight', 1)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -397,6 +425,8 @@ Vue.component('stor', {
     methods: {
         check() {
             store.commit('checkStraight', 2)
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -411,6 +441,8 @@ Vue.component('fullhouse', {
     methods: {
         check() {
             store.commit('checkFullhouse')
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -425,6 +457,8 @@ Vue.component('chance', {
     methods: {
         check() {
             store.commit('chance')
+            store.commit('resetCounter')
+
         }
     }
 })
@@ -440,6 +474,8 @@ Vue.component('yatzy', {
     methods: {
         check() {
             store.commit('checkYatzy')
+            store.commit('resetCounter')
+
         }
     }
 })
