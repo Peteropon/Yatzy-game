@@ -23,43 +23,65 @@ const store = new Vuex.Store({
                 locked: false
             }],
         dievalue: 0,
-        sames: [
-            {
-                id: 1,
-                count: 0
-            },
-            {
-                id: 2,
-                count: 0
-            },
-            {
-                id: 3,
-                count: 0
-            },
-            {
-                id: 4,
-                count: 0
-            },
-            {
-                id: 5,
-                count: 0
-            },
-            {
-                id: 6,
-                count: 0
-            }
-        ],
+        sames:  {
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0
+        }, 
+        pairOne: [],
+        pairTwo: [],
+         
+        //    [
+        //    {
+        //        id: 1,
+        //        count: 0
+        //    },
+        //    {
+        //        id: 2,
+        //        count: 0
+        //    },
+        //    {
+        //        id: 3,
+        //        count: 0
+        //    },
+        //    {
+        //        id: 4,
+        //        count: 0
+        //    },
+        //    {
+        //        id: 5,
+        //        count: 0
+        //    },
+        //    {
+        //        id: 6,
+        //        count: 0
+        //    }
+        //],
         samesTotal: 0,
         pairSum: 0,
         lockedNumbers: [],
         lockedNumbersSum: 0,
         tretalSum: 0,
         fyrtalSum: 0,
+        twoPairSum: 0,
         smallStraight: false,
         largeStraight: false,
         yatzy: false
     },
     mutations: {
+        prepareSames(state, n) {
+            for (i = 0; i < state.dice.length; i++) {
+                if (state.dice[i].locked && state.dice[i].value === n) {
+                    state.sames[n]++
+                }
+                else continue
+            }
+            // 1. Reset sames (zeros)
+            // 2. Calculate sames
+        },
         rollDice(state) {
             for (i = 0; i < state.dice.length; i++) {
                 state.dievalue = Math.floor(Math.random() * 6) + 1;
@@ -68,14 +90,18 @@ const store = new Vuex.Store({
             }
         },
         countNumbers(state, n) {
-            for (i = 0; i < state.dice.length; i++) {
-                if (state.dice[i].locked && state.dice[i].value === n) {
-                    state.sames[n - 1].count++
-                }
-                else continue
-            }
-            state.samesTotal += (state.sames[n - 1].count * n)
-            state.totalSum += (state.sames[n - 1].count * n)
+            this.commit('prepareSames', n)
+
+            // sames is prepared
+
+            //for (i = 0; i < state.dice.length; i++) {
+            //    if (state.dice[i].locked && state.dice[i].value === n) {
+            //        state.sames[n]++
+            //    }
+            //    else continue
+            //}
+            state.samesTotal += (state.sames[n] * n)
+            state.totalSum += (state.sames[n] * n)
         },
         calculateSum(state, getters) {
             for (i = 0; i < getters.getSames.length; i++) {
@@ -91,13 +117,14 @@ const store = new Vuex.Store({
             //for (i = 0; i < state.dice.filter(die => die.locked).length; i++) console.log('ok')
         },
         checkTwoPairs(state) {
-            //state.lockedNumbers = []
+            state.lockedNumbers = []
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
-            for (i = 0; i < state.lockedNumbers.length; i++) {
-                if (state.lockedNumbers[i] == state.sames[state.lockedNumbers[i] - 1].id) {
-                    state.sames[state.lockedNumbers[i] - 1].count++
-                    console.log(i)
-                } else console.log('oxi')
+            state.lockedNumbers.sort((a, b) => a - b)
+            if ((state.lockedNumbers[0]) === (state.lockedNumbers[1])
+                && (state.lockedNumbers[2]) === (state.lockedNumbers[3])) {
+                console.log('ja')
+                state.twoPairSum = state.lockedNumbers.reduce((num, total) => total + num)
+                state.totalSum += state.twoPairSum
             }
         },
         check(state, n) {
@@ -219,7 +246,7 @@ Vue.component('ettor', {
     template: `<div class="child"><button @click="countNumbers">Ones</button> <span v-show="getOnes > 0"> {{ getOnes }} </span> </div>`,
     computed: {
         getOnes() {
-            return this.$store.getters.getSames[0].count
+            return this.$store.getters.getSames[1]
         }
     },
     methods: {
@@ -233,7 +260,7 @@ Vue.component('tvor', {
     template: `<div class="child"><button @click="countNumbers">Twos</button> <span v-show="getTwos > 0"> {{ getTwos }} </span></div>`,
     computed: {
         getTwos() {
-            return this.$store.state.sames[1].count * 2
+            return this.$store.getters.getSames[2] * 2
         }
     },
     methods: {
@@ -247,7 +274,7 @@ Vue.component('treor', {
     template: `<div class="child"><button @click="countNumbers">Threes</button> <span v-show="getThrees > 0"> {{ getThrees }} </span></div>`,
     computed: {
         getThrees() {
-            return this.$store.state.sames[2].count * 3
+            return this.$store.getters.getSames[3] * 3
         }
     },
     methods: {
@@ -261,7 +288,7 @@ Vue.component('fyror', {
     template: `<div class="child"><button @click="countNumbers">Fours</button> <span v-show="getFours > 0"> {{ getFours }} </span></div>`,
     computed: {
         getFours() {
-            return this.$store.state.sames[3].count * 4
+            return this.$store.getters.getSames[4] * 4
         }
     },
     methods: {
@@ -275,7 +302,7 @@ Vue.component('femor', {
     template: `<div class="child"><button @click="countNumbers">Fives</button> <span v-show="getFives > 0"> {{ getFives }} </span></div>`,
     computed: {
         getFives() {
-            return this.$store.state.sames[4].count * 5
+            return this.$store.getters.getSames[5] * 5
         }
     },
     methods: {
@@ -289,7 +316,7 @@ Vue.component('sexor', {
     template: `<div class="child"><button @click="countNumbers">Sixes</button> <span v-show="getSixes > 0"> {{ getSixes }} </span></div>`,
     computed: {
         getSixes() {
-            return this.$store.state.sames[5].count * 6
+            return this.$store.getters.getSames[6] * 6
         }
     },
     methods: {
@@ -317,7 +344,7 @@ Vue.component('twopairs', {
     template: `<div class="child"><button @click="checkTwoPairs">2 pairs</button> <span v-if="getPairs > 1">{{ getPairs }}</span> <span v-else>0</span></div>`,
     computed: {
         getPairs() {
-            return 
+            return this.$store.state.twoPairSum
         }
     },
     methods: {
