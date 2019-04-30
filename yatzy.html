@@ -5,35 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vuex@3.1.0/dist/vuex.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
     <title>Yatzy!</title>
     <style>
         .dice {
-      display: inline-grid;
-      border: thin solid #333;
-      width: 1.6em;
-      padding: 1em;
-      margin: 4px;
-      border-radius: 5px;
+            display: inline-grid;
+            border: thin solid #333;
+            width: 1.6em;
+            padding: 1em;
+            margin: 4px;
+            border-radius: 5px;
         }
+
         .locked {
             background-color: rgba(45, 66, 22, 0.6);
         }
+
         button {
             margin: 1em;
             width: 8em;
         }
+
         .pr {
             margin: 1em;
         }
+
         #left, #right {
             display: inline-grid;
             border: groove;
             min-height: 27em;
             width: 10em;
         }
+
         p {
-            
+        }
+
+        .inactive {
+            background-color: rgba(170, 149, 149, 0.65);
         }
     </style>
 </head>
