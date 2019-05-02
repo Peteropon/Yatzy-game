@@ -45,50 +45,7 @@ const store = new Vuex.Store({
         largeStraight: false,
         yatzy: false,
         counter: 0,
-        components: [
-            {
-                name: 'ettor',
-                button: 'ones',
-                method: 'countNumbers',
-                n: 1,
-                sum: 0
-            },
-            {
-                name: 'tvor',
-                button: 'twos',
-                method: 'countNumbers',
-                n: 2,
-                sum: 0
-            },
-            {
-                name: 'treor',
-                button: 'threes',
-                method: 'countNumbers',
-                n: 2,
-                sum: 0
-            },
-            {
-                name: 'fyror',
-                button: 'fours',
-                method: 'countNumbers',
-                n: 2,
-                sum: 0
-            },
-            {
-                name: 'femor',
-                button: 'fives',
-                method: 'countNumbers',
-                n: 2,
-                sum: 0
-            },
-            {
-                name: 'sexor',
-                button: 'sixes',
-                method: 'countNumbers',
-                n: 2,
-                sum: 0
-            }
-        ]
+        roundCounter: 0
     },
     mutations: {
         prepareSames(state, n) {
@@ -102,7 +59,7 @@ const store = new Vuex.Store({
             // 2. Calculate sames
         },
         rollDice(state) {
-            if (state.counter < 13) {
+            if (state.counter < 3) {
                 for (i = 0; i < state.dice.length; i++) {
                     state.dievalue = Math.floor(Math.random() * 6) + 1;
                     if (state.dice[i].locked) continue
@@ -118,7 +75,8 @@ const store = new Vuex.Store({
             state.dice.forEach(die => die.locked = false)
             state.lockedNumbers = []
             state.getLockedNumbersSum = 0
-
+            state.roundCounter++
+            if (state.roundCounter === 15) console.log('game over')
         },
         countNumbers(state, n) {
             this.commit('prepareSames', n)
@@ -281,6 +239,11 @@ const store = new Vuex.Store({
 //    }
 //})
 
+Vue.component('loader', {
+    template: `<div class="custom-class"  :loading="loading" ></div>`,
+
+})
+
 Vue.component('dice', {
     props: ['die'],
     template: `<div>
@@ -291,7 +254,10 @@ Vue.component('dice', {
         shownumber() {
             return this.$store.state.dice
         }
-    }
+    },
+    //components: {
+    //    'loader': loader
+    //}
 })
 
 Vue.component('firstsum', {
@@ -307,7 +273,7 @@ Vue.component('firstsum', {
 })
 
 Vue.component('ettor', {
-    template: `<div class="child" v-bind:class="{inactive:getOnes}"><button @click.once="countNumbers" >Ones</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="countNumbers" >Ones</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -315,25 +281,32 @@ Vue.component('ettor', {
     computed: {
         getOnes() {
             return this.$store.getters.getSames[1]
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         countNumbers() {
             store.commit('countNumbers', 1)
             store.commit('resetCounter')
+            this.$data.clicked = true
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('tvor', {
-    template: `<div class="child" v-bind:class="{inactive:getTwos}"><button @click.once="countNumbers">Twos</button> <transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="countNumbers">Twos</button> <transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -341,26 +314,33 @@ Vue.component('tvor', {
     computed: {
         getTwos() {
             return this.$store.getters.getSames[2] * 2
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         countNumbers() {
             store.commit('countNumbers', 2)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('treor', {
-    template: `<div class="child" v-bind:class="{inactive:getThrees}"><button @click.once="countNumbers">Threes</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="countNumbers">Threes</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -368,26 +348,33 @@ Vue.component('treor', {
     computed: {
         getThrees() {
             return this.$store.getters.getSames[3] * 3
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         countNumbers() {
             store.commit('countNumbers', 3)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('fyror', {
-    template: `<div class="child" v-bind:class="{inactive:getFours}"><button @click.once="countNumbers">Fours</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="countNumbers">Fours</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -395,26 +382,33 @@ Vue.component('fyror', {
     computed: {
         getFours() {
             return this.$store.getters.getSames[4] * 4
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         countNumbers() {
             store.commit('countNumbers', 4)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('femor', {
-    template: `<div class="child" v-bind:class="{inactive:getFives}"><button @click.once="countNumbers">Fives</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="countNumbers">Fives</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -422,26 +416,33 @@ Vue.component('femor', {
     computed: {
         getFives() {
             return this.$store.getters.getSames[5] * 5
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         countNumbers() {
             store.commit('countNumbers', 5)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('sexor', {
-    template: `<div class="child" v-bind:class="{inactive:getSixes}"><button @click.once="countNumbers">Sixes</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="countNumbers">Sixes</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -449,26 +450,33 @@ Vue.component('sexor', {
     computed: {
         getSixes() {
             return this.$store.getters.getSames[6] * 6
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         countNumbers() {
             store.commit('countNumbers', 6)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('onepair', {
-    template: `<div class="child" v-bind:class="{inactive:getPair}"><button @click.once="checkPair">1 pair</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="checkPair">1 pair</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -476,26 +484,33 @@ Vue.component('onepair', {
     computed: {
         getPair() {
             return this.$store.getters.getPairSum 
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         checkPair() {
             store.commit('checkPair')
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('twopairs', {
-    template: `<div class="child" v-bind:class="{inactive:getPairs}"><button @click.once="checkTwoPairs">2 pairs</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="checkTwoPairs">2 pairs</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -503,26 +518,33 @@ Vue.component('twopairs', {
     computed: {
         getPairs() {
             return this.$store.state.twoPairSum
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         checkTwoPairs() {
             store.commit('checkTwoPairs')
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('tretal', {
-    template: `<div class="child" v-bind:class="{inactive:getSum}"><button @click.once="check3">Three of a kind</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="check3">Three of a kind</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -530,26 +552,33 @@ Vue.component('tretal', {
     computed: {
         getSum() {
             return this.$store.getters.getTretalSum
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         check3() {
             store.commit('check', 3)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('fyrtal', {
-    template: `<div class="child" v-bind:class="{inactive:getSum}"><button @click.once="check">Four of a kind</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="check">Four of a kind</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -557,26 +586,33 @@ Vue.component('fyrtal', {
     computed: {
         getSum() {
             return this.$store.getters.getFyrtalSum
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         check() {
             store.commit('check', 4)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('liten', {
-    template: `<div class="child" v-bind:class="{inactive:getSum}"><button @click.once="check">Small straight</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="check">Small straight</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -584,26 +620,33 @@ Vue.component('liten', {
     computed: {
         getSum() {
             return this.$store.state.smallStraight
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         check() {
             store.commit('checkStraight', 1)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('stor', {
-    template: `<div class="child" v-bind:class="{inactive:getSum}"><button @click.once="check">Large straight</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="check">Large straight</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -611,26 +654,33 @@ Vue.component('stor', {
     computed: {
         getSum() {
             return this.$store.state.largeStraight
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         check() {
             store.commit('checkStraight', 2)
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('fullhouse', {
-    template: `<div class="child" v-bind:class="{inactive:getSum}"><button @click.once="check">Fullhouse</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="check">Fullhouse</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -638,26 +688,33 @@ Vue.component('fullhouse', {
     computed: {
         getSum() {
             return this.$store.state.fullhouseSum
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         check() {
             store.commit('checkFullhouse')
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 Vue.component('chance', {
-    template: `<div class="child" v-bind:class="{inactive:getSum}"><button @click.once="check">Chance</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="check">Chance</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -665,27 +722,34 @@ Vue.component('chance', {
     computed: {
         getSum() {
             return this.$store.getters.getLockedNumbersSum
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         check() {
             store.commit('chance')
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
 
 Vue.component('yatzy', {
-    template: `<div class="child" v-bind:class="{inactive:getSum}"><button @click.once="check">Yatzy!</button><transition
+    template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="check">Yatzy!</button><transition
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
@@ -693,21 +757,28 @@ Vue.component('yatzy', {
     computed: {
         getSum() {
             return this.$store.state.yatzy
+        },
+        getClick() {
+            return this.$data.clicked
         }
     },
     methods: {
         check() {
             store.commit('checkYatzy')
             store.commit('resetCounter')
+            this.$data.clicked = true
 
         },
         beforeEnter: function (el) {
             el.style.opacity = 0
         },
         enter: function (el, done) {
-            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
+            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 700 })
             Velocity(el, { fontSize: '1em' }, { complete: done })
         }
+    },
+    data() {
+        return { clicked: false }
     }
 })
 
@@ -726,7 +797,7 @@ Vue.component('result', {
     },
     watch: {
         number: function(newValue) {
-            TweenLite.to(this.$data, 0.5, { tweenedNumber: newValue });
+            TweenLite.to(this.$data, 0.7, { tweenedNumber: newValue });
         }
     }
 })
