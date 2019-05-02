@@ -46,7 +46,8 @@ const store = new Vuex.Store({
         yatzy: false,
         counter: 0,
         roundCounter: 0,
-        gameFinished: false
+        gameFinished: false,
+        loading: false
     },
     mutations: {
         restartGame(state) {
@@ -61,8 +62,6 @@ const store = new Vuex.Store({
                 }
                 else continue
             }
-            // 1. Reset sames (zeros)
-            // 2. Calculate sames
         },
         rollDice(state) {
             if (state.counter < 13) {
@@ -75,6 +74,7 @@ const store = new Vuex.Store({
             } else {
                 console.log('need to choose')
             }
+            state.loading = false
         },
         resetCounter(state) {
             state.counter = 0
@@ -83,7 +83,6 @@ const store = new Vuex.Store({
             state.getLockedNumbersSum = 0
             state.roundCounter++
             if (state.roundCounter === 3) {
-                console.log('game over')
                 this.commit('gameOver')
             }
         },
@@ -92,9 +91,6 @@ const store = new Vuex.Store({
         },
         countNumbers(state, n) {
             this.commit('prepareSames', n)
-
-            // sames is prepared
-
             state.samesTotal += (state.sames[n] * n)
             state.totalSum += (state.sames[n] * n)
         },
@@ -110,7 +106,6 @@ const store = new Vuex.Store({
             state.lockedNumbers.sort((a, b) => a - b)
             if ((state.lockedNumbers[0]) === (state.lockedNumbers[1])
                 && (state.lockedNumbers[2]) === (state.lockedNumbers[3])) {
-                console.log('ja')
                 state.twoPairSum = state.lockedNumbers.reduce((num, total) => total + num)
                 state.totalSum += state.twoPairSum
             }
@@ -120,18 +115,14 @@ const store = new Vuex.Store({
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
             state.lockedNumbers.sort((a, b) => a - b)
             if (state.lockedNumbers[1] < state.lockedNumbers[2]) {
-                console.log('one')
                 if ((state.lockedNumbers[0] === state.lockedNumbers[1])
                     && (state.lockedNumbers[2] + state.lockedNumbers[3] + state.lockedNumbers[4]) / 3 === state.lockedNumbers[2]) {
-                    console.log('ja')
                     state.fullhouseSum = state.lockedNumbers.reduce((num, total) => total + num)
                     state.totalSum += state.fullhouseSum
                 }
             } else {
-                console.log('two')
                 if ((state.lockedNumbers[0] + state.lockedNumbers[1] + state.lockedNumbers[2]) / 3 === state.lockedNumbers[0]
                     && state.lockedNumbers[3] === state.lockedNumbers[4]) {
-                    console.log('ja')
                     state.fullhouseSum = state.lockedNumbers.reduce((num, total) => total + num)
                     state.totalSum += state.fullhouseSum
                 }
@@ -215,28 +206,37 @@ const store = new Vuex.Store({
             return state.dice.filter(die => die.id == id)
         }
         
+    },
+    actions: {
+        rollDice({ commit, state }) {
+            console.log('loading')
+            state.loading = true
+            setTimeout(() => {
+
+                commit('rollDice');
+                console.log('now')
+            }, 1000)
+        }
     }
 })
 
-Vue.component('loader', {
-    template: `<div class="custom-class"  :loading="loading" ></div>`,
 
-})
 
 Vue.component('dice', {
+    
     props: ['die'],
     template: `<div>
                <div class="dice" v-for="die, index in shownumber" :key="index" @click="die.locked = !die.locked" 
-    v-bind:class="{locked:die.locked}" > {{ die.value }} </div>
+    v-bind:class="{locked:die.locked}"> <span v-if="loading"><grid-loader class="loader"></grid-loader> </span> <span v-else>{{ die.value }}</span> </div>
     </div>`,
     computed: {
         shownumber() {
             return this.$store.state.dice
+        },
+        loading() {
+            return this.$store.state.loading
         }
-    },
-    //components: {
-    //    'loader': loader
-    //}
+    }
 })
 
 Vue.component('firstsum', {
@@ -804,11 +804,14 @@ Vue.component('app-child', {
 
 const app = new Vue({
     el: '#app',
-    //props: ['gameFinished'],
+    props: ['gameFinished'],
     store,
     methods: {
         throwdice () {
             store.commit('rollDice')
+        },
+        rollDice() {
+            store.dispatch('rollDice')
         }
     },
     data() {
@@ -817,9 +820,9 @@ const app = new Vue({
             blurClass: 'blur'
         }
     },
-    computed: {
-        gameFinished() {
-            return this.$store.state.gameFinished
-        }
-    }
+    //computed: {
+    //    gameFinished() {
+    //        return this.$store.state.gameFinished
+    //    }
+    //}
 })

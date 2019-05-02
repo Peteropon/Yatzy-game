@@ -25,7 +25,16 @@
     background-color: darkolivegreen;
 }
 
+.loader > div {
+    color: darkolivegreen;
+    background-color: darkolivegreen;
+    height: 10px;
+    width: 11px
+}
+
 button {
+    font-family: 'Palatino Linotype', serif;
+    text-overflow: ellipsis;
     background-color: rgb(234, 226, 147);
     margin: 0.5em;
     width: 7.2em;
@@ -101,20 +110,20 @@ p {
     }
 
     button:hover {
-        background-color:  firebrick;
+        background-color: #da7d09;
         color: bisque;
         cursor: pointer;
     }
     #left, #right {
         border: groove;
         min-height: 27em;
-        width: 9em;
-        padding: 0 1em;
+        width: 11em;
         justify-content: left;
     }
 
     .dice {
         width: 3em;
+        height: 3em;
         border: thin solid #333;
     }
 

@@ -15,9 +15,9 @@
 <body>
     <div id="app">
         <app-child></app-child>
-        <div>
-            <button @click="throwdice">Roll dice</button>
-            <!--<grid-loader></grid-loader>-->
+        <div v-bind:class="[gameFinished ? blurClass : '', bkClass]" >
+            <button @click="rollDice">Roll dice</button>
+            <!--<loader></loader>-->
             <dice></dice>
             <section id="left">
                 <ettor></ettor>
@@ -29,7 +29,7 @@
                 <firstsum class="pr">
                 </firstsum>
             </section>
-            <section id="right"  v-bind:class="[gameFinished ? blurClass : '', bkClass]" >
+            <section id="right">
                 <onepair></onepair>
                 <twopairs></twopairs>
                 <tretal></tretal>
