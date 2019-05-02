@@ -8,38 +8,41 @@
     <script src="https://unpkg.com/vuex@3.1.0/dist/vuex.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
-    <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/@saeris/vue-spinners"></script>
     <title>Yatzy? Yatzy!</title>
 
 </head>
 <body>
     <div id="app">
-        <button @click="throwdice">Throw dice</button>
-        <grid-loader></grid-loader>
-        <dice></dice>
-        <section id="left">
-            <ettor></ettor>
-            <tvor></tvor>
-            <treor></treor>
-            <fyror></fyror>
-            <femor></femor>
-            <sexor></sexor>
-            <firstsum class="pr">
-            </firstsum>
-        </section>
-        <section id="right">
-            <onepair></onepair>
-            <twopairs></twopairs>
-            <tretal></tretal>
-            <fyrtal></fyrtal>
-            <liten></liten>
-            <stor></stor>
-            <fullhouse></fullhouse>
-            <chance></chance>
-            <yatzy></yatzy>
-        </section>
-        <result></result>
+        <app-child></app-child>
+        <div>
+            <button @click="throwdice">Roll dice</button>
+            <!--<grid-loader></grid-loader>-->
+            <dice></dice>
+            <section id="left">
+                <ettor></ettor>
+                <tvor></tvor>
+                <treor></treor>
+                <fyror></fyror>
+                <femor></femor>
+                <sexor></sexor>
+                <firstsum class="pr">
+                </firstsum>
+            </section>
+            <section id="right"  v-bind:class="[gameFinished ? blurClass : '', bkClass]" >
+                <onepair></onepair>
+                <twopairs></twopairs>
+                <tretal></tretal>
+                <fyrtal></fyrtal>
+                <liten></liten>
+                <stor></stor>
+                <fullhouse></fullhouse>
+                <chance></chance>
+                <yatzy></yatzy>
+            </section>
+            <result></result>
+        </div>
+
     </div>
 </body>
 

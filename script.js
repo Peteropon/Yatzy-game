@@ -45,9 +45,15 @@ const store = new Vuex.Store({
         largeStraight: false,
         yatzy: false,
         counter: 0,
-        roundCounter: 0
+        roundCounter: 0,
+        gameFinished: false
     },
     mutations: {
+        restartGame(state) {
+            console.log('restarting')
+            state.gameFinished = false
+            this.commit('resetCounter')
+        },
         prepareSames(state, n) {
             for (i = 0; i < state.dice.length; i++) {
                 if (state.dice[i].locked && state.dice[i].value === n) {
@@ -59,7 +65,7 @@ const store = new Vuex.Store({
             // 2. Calculate sames
         },
         rollDice(state) {
-            if (state.counter < 3) {
+            if (state.counter < 13) {
                 for (i = 0; i < state.dice.length; i++) {
                     state.dievalue = Math.floor(Math.random() * 6) + 1;
                     if (state.dice[i].locked) continue
@@ -76,7 +82,13 @@ const store = new Vuex.Store({
             state.lockedNumbers = []
             state.getLockedNumbersSum = 0
             state.roundCounter++
-            if (state.roundCounter === 15) console.log('game over')
+            if (state.roundCounter === 3) {
+                console.log('game over')
+                this.commit('gameOver')
+            }
+        },
+        gameOver(state) {
+            state.gameFinished = true
         },
         countNumbers(state, n) {
             this.commit('prepareSames', n)
@@ -205,39 +217,6 @@ const store = new Vuex.Store({
         
     }
 })
-
-//Vue.component('comp', {
-//    props: ['component'],
-//    template: `<div><div class="child" v-bind:class="{inactive:getSum}" v-for="component, index in getComp":key="index">
-//<button @click.once="countNumbers">{{component.button}}</button> 
-//<transition
-//    v-on:before-enter="beforeEnter"
-//    v-on:enter="enter"
-//    v-bind:css="false"
-//  >
-//<span > {{ component.sum }} </span></transition></div></div>`,
-//    methods: {
-//        countNumbers() {
-//            store.commit('chance')
-//            store.commit('resetCounter')
-//        },
-//        beforeEnter: function (el) {
-//            el.style.opacity = 0
-//        },
-//        enter: function (el, done) {
-//            Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 })
-//            Velocity(el, { fontSize: '1em' }, { complete: done })
-//        }
-//    },
-//    computed: {
-//        getSum() {
-//            return this.$store.state.lockedNumbersSum
-//        },
-//        getComp() {
-//            return this.$store.state.components
-//        }
-//    }
-//})
 
 Vue.component('loader', {
     template: `<div class="custom-class"  :loading="loading" ></div>`,
@@ -802,14 +781,45 @@ Vue.component('result', {
     }
 })
 
+Vue.component('app-child', {
+    template: `<transition name="fade"> <div class="modal" v-if="gameFinished" >
+            <button @click="restartGame"> Close </button>
+    <h2>Game over! Your score is {{ getResult }}. Hit refresh to play a new game</h2>
+        <slot></slot>
+  </div></transition>`,
+    computed: {
+        gameFinished() {
+            return this.$store.state.gameFinished
+        },
+        getResult() {
+            return this.$store.state.totalSum
+        }
+    },
+    methods: {
+        restartGame() {
+            store.commit('restartGame')
+        }
+    }
+})
+
 const app = new Vue({
     el: '#app',
+    //props: ['gameFinished'],
     store,
     methods: {
         throwdice () {
             store.commit('rollDice')
         }
+    },
+    data() {
+        return {
+            bkClass: 'bk',
+            blurClass: 'blur'
+        }
+    },
+    computed: {
+        gameFinished() {
+            return this.$store.state.gameFinished
+        }
     }
 })
-
-//todo: add the iterator (count to 15)
