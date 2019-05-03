@@ -1,6 +1,9 @@
 const store = new Vuex.Store({
     state: {
+        //sum of all points during a game
         totalSum: 0,
+
+        //array of objects representing dice and if they are locked (chosen)
         dice: [{
                 id: 1,
                 value: 0,
@@ -22,7 +25,11 @@ const store = new Vuex.Store({
                 value: 0,
                 locked: false
             }],
+
+        //value of one individual die
         dievalue: 0,
+
+        //array which counts how many instances of each dice
         sames:  {
             '1': 0,
             '2': 0,
@@ -31,10 +38,16 @@ const store = new Vuex.Store({
             '5': 0,
             '6': 0
         }, 
+
+        //array used for checking two pairs
         pairOne: [],
         pairTwo: [],
+
+        //the total of the upper part of the protocoll
         samesTotal: 0,
         pairSum: 0,
+
+        //in this array are all chosen dice added
         lockedNumbers: [],
         lockedNumbersSum: 0,
         tretalSum: 0,
@@ -44,17 +57,29 @@ const store = new Vuex.Store({
         smallStraight: false,
         largeStraight: false,
         yatzy: false,
+
+        //counts how many times the player has rolled the dice for each turm (up to 3)
         counter: 0,
         roundCounter: 0,
+
+        //This is used when all 15 buttons have been used to signify that the game is over
         gameFinished: false,
-        loading: false
+
+        //Becomes true when the dice animation is running
+        loading: false,
+        launchNot: false
     },
     mutations: {
+
+
         restartGame(state) {
             console.log('restarting')
             state.gameFinished = false
-            this.commit('resetCounter')
+            this.commit('reset')
         },
+
+        //Checks how many dice are locked (chosen) by the player and if their value is equal with n, where n is sent by 
+        // the respective component (eg n = 1 from the component which checks for ones)
         prepareSames(state, n) {
             for (i = 0; i < state.dice.length; i++) {
                 if (state.dice[i].locked && state.dice[i].value === n) {
@@ -62,9 +87,12 @@ const store = new Vuex.Store({
                 }
                 else continue
             }
+            
         },
+
+        //Produces new values for the dice while checking that it's not over 3 times for each turn
         rollDice(state) {
-            if (state.counter < 13) {
+            if (state.counter < 3) {
                 for (i = 0; i < state.dice.length; i++) {
                     state.dievalue = Math.floor(Math.random() * 6) + 1;
                     if (state.dice[i].locked) continue
@@ -72,17 +100,18 @@ const store = new Vuex.Store({
                 }
                 state.counter++
             } else {
+                state.launchNot = true
                 console.log('need to choose')
             }
             state.loading = false
         },
-        resetCounter(state) {
+        reset(state) {
             state.counter = 0
             state.dice.forEach(die => die.locked = false)
             state.lockedNumbers = []
             state.getLockedNumbersSum = 0
             state.roundCounter++
-            if (state.roundCounter === 3) {
+            if (state.roundCounter === 13) {
                 this.commit('gameOver')
             }
         },
@@ -111,7 +140,6 @@ const store = new Vuex.Store({
             }
         },
         checkFullhouse(state) {
-            state.lockedNumbers = []
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
             state.lockedNumbers.sort((a, b) => a - b)
             if (state.lockedNumbers[1] < state.lockedNumbers[2]) {
@@ -129,7 +157,6 @@ const store = new Vuex.Store({
             }
         },
         check(state, n) {
-            state.getLockedNumbersSum = 0
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
             if (state.lockedNumbers.length === n && (state.lockedNumbers.reduce((num, total) => total + num) % state.lockedNumbers.length === 0)) {
                 if (n === 3) {
@@ -142,7 +169,6 @@ const store = new Vuex.Store({
             }
         },
         checkStraight(state, n) {
-            state.lockedNumbers = []
             if (state.dice.filter(die => die.locked).length === 5) {
                 state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
                 state.lockedNumbers.sort((a, b) => a - b)
@@ -171,10 +197,16 @@ const store = new Vuex.Store({
                 }
             }
         },
+
+        //Filters all the locked dice and puts them in a new array. Then calculates the sum and adds it to the total sum
         chance(state) {
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
                 state.lockedNumbersSum = state.lockedNumbers.reduce((num, total) => total + num)
                 state.totalSum += state.lockedNumbersSum
+        },
+
+        continueGame(state) {
+            state.launchNot = false
         }
     },
     getters: {
@@ -208,20 +240,19 @@ const store = new Vuex.Store({
         
     },
     actions: {
+
+        //asyncronously with a delay of one second during which an animation is displayed
         rollDice({ commit, state }) {
-            console.log('loading')
             state.loading = true
             setTimeout(() => {
-
                 commit('rollDice');
-                console.log('now')
             }, 1000)
         }
     }
 })
 
 
-
+//Creates the component which represents the dice and it includes an animation for when the dice are loading
 Vue.component('dice', {
     
     props: ['die'],
@@ -235,6 +266,24 @@ Vue.component('dice', {
         },
         loading() {
             return this.$store.state.loading
+        }
+    }
+})
+
+Vue.component('temp', {
+    template: `<transition name="fade"> <div class="modal" v-if="launchNot" >
+            <button @click="continueGame"> Close </button>
+    <h2>You have used all your rolls for this round. You need to assign your points.</h2>
+        <slot></slot>
+  </div></transition>`,
+    computed: {
+        launchNot() {
+            return this.$store.state.launchNot
+        }
+    },
+    methods: {
+        continueGame() {
+            store.commit('continueGame')
         }
     }
 })
@@ -268,7 +317,7 @@ Vue.component('ettor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 1)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
         },
         beforeEnter: function (el) {
@@ -301,7 +350,7 @@ Vue.component('tvor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 2)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -335,7 +384,7 @@ Vue.component('treor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 3)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -369,7 +418,7 @@ Vue.component('fyror', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 4)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -403,7 +452,7 @@ Vue.component('femor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 5)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -437,7 +486,7 @@ Vue.component('sexor', {
     methods: {
         countNumbers() {
             store.commit('countNumbers', 6)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -471,7 +520,7 @@ Vue.component('onepair', {
     methods: {
         checkPair() {
             store.commit('checkPair')
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -505,7 +554,7 @@ Vue.component('twopairs', {
     methods: {
         checkTwoPairs() {
             store.commit('checkTwoPairs')
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -539,7 +588,7 @@ Vue.component('tretal', {
     methods: {
         check3() {
             store.commit('check', 3)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -573,7 +622,7 @@ Vue.component('fyrtal', {
     methods: {
         check() {
             store.commit('check', 4)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -607,7 +656,7 @@ Vue.component('liten', {
     methods: {
         check() {
             store.commit('checkStraight', 1)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -641,7 +690,7 @@ Vue.component('stor', {
     methods: {
         check() {
             store.commit('checkStraight', 2)
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -675,7 +724,7 @@ Vue.component('fullhouse', {
     methods: {
         check() {
             store.commit('checkFullhouse')
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -709,7 +758,7 @@ Vue.component('chance', {
     methods: {
         check() {
             store.commit('chance')
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -744,7 +793,7 @@ Vue.component('yatzy', {
     methods: {
         check() {
             store.commit('checkYatzy')
-            store.commit('resetCounter')
+            store.commit('reset')
             this.$data.clicked = true
 
         },
@@ -781,6 +830,7 @@ Vue.component('result', {
     }
 })
 
+//This is the notification window when the game is ended. It comes with a little transition and it should make the background vague but something is wrong there
 Vue.component('app-child', {
     template: `<transition name="fade"> <div class="modal" v-if="gameFinished" >
             <button @click="restartGame"> Close </button>
@@ -810,6 +860,8 @@ const app = new Vue({
         throwdice () {
             store.commit('rollDice')
         },
+
+        //calls on asyncronous action in order to do a little animation before it produces the numbers
         rollDice() {
             store.dispatch('rollDice')
         }
@@ -819,10 +871,5 @@ const app = new Vue({
             bkClass: 'bk',
             blurClass: 'blur'
         }
-    },
-    //computed: {
-    //    gameFinished() {
-    //        return this.$store.state.gameFinished
-    //    }
-    //}
+    }
 })

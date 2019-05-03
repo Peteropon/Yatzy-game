@@ -41,7 +41,7 @@ button {
     height: 2.5em;
     border-radius: 5px;
     border: #067575;
-    -webkit-transition-duration: 0.9s; /* Safari */
+    -webkit-transition-duration: 0.7s;
     transition-duration: 0.9s;
 }
 

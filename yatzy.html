@@ -15,7 +15,8 @@
 <body>
     <div id="app">
         <app-child></app-child>
-        <div v-bind:class="[gameFinished ? blurClass : '', bkClass]" >
+        <temp></temp>
+        <div v-bind:class="[gameFinished ? blurClass : bkClass]" >
             <button @click="rollDice">Roll dice</button>
             <!--<loader></loader>-->
             <dice></dice>
