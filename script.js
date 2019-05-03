@@ -60,6 +60,8 @@ const store = new Vuex.Store({
 
         //counts how many times the player has rolled the dice for each turm (up to 3)
         counter: 0,
+
+        //counts all the rounds, which are 15, as many as the rows in the protocoll
         roundCounter: 0,
 
         //This is used when all 15 buttons have been used to signify that the game is over
@@ -67,13 +69,12 @@ const store = new Vuex.Store({
 
         //Becomes true when the dice animation is running
         loading: false,
+
+        //turns to true when a notification needs to be shown
         launchNot: false
     },
     mutations: {
-
-
         restartGame(state) {
-            console.log('restarting')
             state.gameFinished = false
             this.commit('reset')
         },
@@ -90,7 +91,8 @@ const store = new Vuex.Store({
             
         },
 
-        //Produces new values for the dice while checking that it's not over 3 times for each turn
+        //Produces new values for the dice while checking that it's not over 3 times for each turn. If the player presses more than 
+        // 3 times before they make a choice, then a notification pops up
         rollDice(state) {
             if (state.counter < 3) {
                 for (i = 0; i < state.dice.length; i++) {
@@ -101,17 +103,17 @@ const store = new Vuex.Store({
                 state.counter++
             } else {
                 state.launchNot = true
-                console.log('need to choose')
             }
             state.loading = false
         },
         reset(state) {
             state.counter = 0
             state.dice.forEach(die => die.locked = false)
+            state.dice.forEach(die => die.value = 0)
             state.lockedNumbers = []
             state.getLockedNumbersSum = 0
             state.roundCounter++
-            if (state.roundCounter === 13) {
+            if (state.roundCounter === 3) {
                 this.commit('gameOver')
             }
         },
@@ -124,13 +126,14 @@ const store = new Vuex.Store({
             state.totalSum += (state.sames[n] * n)
         },
         checkPair(state) {
+            //Gets the locked values are equal, then calculates the sum
             if (state.dice.filter(die => die.locked)[0].value === state.dice.filter(die => die.locked)[1].value) {
                 state.pairSum = state.dice.filter(die => die.locked)[0].value * 2
                 state.totalSum += state.pairSum
-
             }
         },
         checkTwoPairs(state) {
+            //Puts the selected values into two array and compares each
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
             state.lockedNumbers.sort((a, b) => a - b)
             if ((state.lockedNumbers[0]) === (state.lockedNumbers[1])
@@ -140,6 +143,8 @@ const store = new Vuex.Store({
             }
         },
         checkFullhouse(state) {
+            //Puts the selected values in an array and sorts after size.Then it checks if it's a 2-3 or a 3-2 formation
+            //and finally compared the values with each other
             state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
             state.lockedNumbers.sort((a, b) => a - b)
             if (state.lockedNumbers[1] < state.lockedNumbers[2]) {
@@ -168,6 +173,9 @@ const store = new Vuex.Store({
                 }
             }
         },
+
+        //Checks if array length is 5 which is a must and then sorts it ascending. If n = 1 it checks for a small straight and if it's 2 it checks for a
+        // large by comparing the values in the array 
         checkStraight(state, n) {
             if (state.dice.filter(die => die.locked).length === 5) {
                 state.dice.filter(die => die.locked).forEach(die => state.lockedNumbers.push(die.value))
@@ -205,6 +213,7 @@ const store = new Vuex.Store({
                 state.totalSum += state.lockedNumbersSum
         },
 
+        // Used by the component which notifies the player, toggles off the notification
         continueGame(state) {
             state.launchNot = false
         }
@@ -241,7 +250,7 @@ const store = new Vuex.Store({
     },
     actions: {
 
-        //asyncronously with a delay of one second during which an animation is displayed
+        //used asyncronously with a delay of one second during which an animation is displayed
         rollDice({ commit, state }) {
             state.loading = true
             setTimeout(() => {
@@ -270,6 +279,7 @@ Vue.component('dice', {
     }
 })
 
+//Throws a notification if a player rolls the dice more than 3 times
 Vue.component('temp', {
     template: `<transition name="fade"> <div class="modal" v-if="launchNot" >
             <button @click="continueGame"> Close </button>
@@ -288,6 +298,7 @@ Vue.component('temp', {
     }
 })
 
+//This component appears if the total in the first 6 rows of the protocoll is over 63
 Vue.component('firstsum', {
     template: `<section>
     <div> <label> Sum: </label> <span v-show="getSum > 63"> {{ getSum }}</span> </div> <br>
@@ -300,6 +311,7 @@ Vue.component('firstsum', {
     }
 })
 
+//Here are the main components that comprise the rows of the protocoll
 Vue.component('ettor', {
     template: `<div class="child" v-bind:class="{inactive:getClick}"><button @click.once="countNumbers" >Ones</button><transition
     v-on:before-enter="beforeEnter"
@@ -508,7 +520,7 @@ Vue.component('onepair', {
     v-on:before-enter="beforeEnter"
     v-on:enter="enter"
     v-bind:css="false"
-  > <span v-if="getPair > 1">{{ getPair }}</span></transition></div>`,
+  > <span v-show="getPair > 1">{{ getPair }}</span></transition></div>`,
     computed: {
         getPair() {
             return this.$store.getters.getPairSum 

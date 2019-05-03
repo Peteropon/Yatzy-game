@@ -98,6 +98,10 @@ p {
         font-weight: bold;
     }
 
+    .modal {
+        background-color: #da7d09;
+    }
+
     #app {
         text-align: center;
         display: flex;
