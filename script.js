@@ -106,6 +106,8 @@ const store = new Vuex.Store({
             }
             state.loading = false
         },
+
+        //reset arrays to 0, unselects dice, increments the overall counter until it reaches 15 in which case the game ends
         reset(state) {
             state.counter = 0
             state.dice.forEach(die => die.locked = false)
@@ -113,7 +115,7 @@ const store = new Vuex.Store({
             state.lockedNumbers = []
             state.getLockedNumbersSum = 0
             state.roundCounter++
-            if (state.roundCounter === 3) {
+            if (state.roundCounter === 15) {
                 this.commit('gameOver')
             }
         },
